@@ -4,9 +4,9 @@
 // ========================
 // Пины управления
 // ========================
-#define RED_RELAY_PIN    4
-#define GREEN_RELAY_PIN  5
-#define BUTTON_PIN       6
+#define RED_RELAY_PIN    11
+#define GREEN_RELAY_PIN  10
+#define BUTTON_PIN       12
 
 // ========================
 // Константы
@@ -56,11 +56,11 @@ void printAutoState(AutoState state);
 // ========================
 void SetRedState(bool state)
 {
-  digitalWrite(RED_RELAY_PIN, state?LOW:HIGH);
+  digitalWrite(RED_RELAY_PIN, state?HIGH:LOW);
 }
 void SetGreenState(bool state)
 {
-  digitalWrite(GREEN_RELAY_PIN, state?LOW:HIGH);
+  digitalWrite(GREEN_RELAY_PIN, state?HIGH:LOW);
 }
 
 // ========================
@@ -69,8 +69,8 @@ void setup() {
   pinMode(GREEN_RELAY_PIN, OUTPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
 
-  SetRedState(false);
-  SetGreenState(false);
+  SetRedState(true);
+  SetGreenState(true);
 
   Serial.begin(9600);
   delay(200); // немного подождём запуска монитора порта
@@ -85,16 +85,24 @@ void loop() {
   handleMode();
 }
 
+bool button_processed = false;
+
 // ========================
 void handleButton() {
   bool reading = digitalRead(BUTTON_PIN);
 
+
   if (reading != lastButtonState) {
     lastDebounceTime = millis();
+    button_processed = false;
   }
+  
 
-  if ((millis() - lastDebounceTime) > DEBOUNCE_DELAY) {
-    if (lastButtonState == HIGH && reading == LOW) {
+  if ((millis() - lastDebounceTime) > DEBOUNCE_DELAY) 
+  {
+  
+    if ((reading == LOW) && (button_processed == false))
+    {
       currentMode = static_cast<Mode>((currentMode % 4) + 1);
       printMode(currentMode);
 
@@ -102,10 +110,12 @@ void handleButton() {
       autoState = AUTO_RED;
       stateStartTime = millis();
       greenState = false;
+      button_processed = true;
     }
   }
-
-  lastButtonState = reading;
+  
+lastButtonState = reading;
+  
 }
 
 // ========================
