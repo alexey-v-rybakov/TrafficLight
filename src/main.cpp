@@ -1,4 +1,6 @@
 #include <Arduino.h>
+
+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
 // проверка
 // ========================
 // Пины управления
