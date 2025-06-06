@@ -53,13 +53,23 @@ void printMode(Mode mode);
 void printAutoState(AutoState state);
 
 // ========================
+void SetRedState(bool state)
+{
+  digitalWrite(RED_RELAY_PIN, state?LOW:HIGH);
+}
+void SetGreenState(bool state)
+{
+  digitalWrite(GREEN_RELAY_PIN, state?LOW:HIGH);
+}
+
+// ========================
 void setup() {
   pinMode(RED_RELAY_PIN, OUTPUT);
   pinMode(GREEN_RELAY_PIN, OUTPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
 
-  digitalWrite(RED_RELAY_PIN, LOW);
-  digitalWrite(GREEN_RELAY_PIN, LOW);
+  SetRedState(false);
+  SetGreenState(false);
 
   Serial.begin(9600);
   delay(200); // немного подождём запуска монитора порта
@@ -105,13 +115,13 @@ void handleMode() {
       break;
 
     case MODE_RED:
-      digitalWrite(RED_RELAY_PIN, HIGH);
-      digitalWrite(GREEN_RELAY_PIN, LOW);
+      SetRedState(true);
+      SetGreenState(false);
       break;
 
     case MODE_GREEN:
-      digitalWrite(RED_RELAY_PIN, LOW);
-      digitalWrite(GREEN_RELAY_PIN, HIGH);
+      SetRedState(false);
+      SetGreenState(true);
       break;
 
     case MODE_AUTO:
@@ -127,21 +137,21 @@ void handleAutoMode() {
   switch (autoState) {
     case AUTO_RED:
       if (currentTime - stateStartTime >= RED_DURATION) {
-        digitalWrite(RED_RELAY_PIN, LOW);
+        SetRedState(false);
         autoState = AUTO_GREEN_BLINK;
         stateStartTime = currentTime;
         greenState = false;
-        digitalWrite(GREEN_RELAY_PIN, LOW);
+        SetGreenState(false);
         printAutoState(autoState);
       } else {
-        digitalWrite(RED_RELAY_PIN, HIGH);
-        digitalWrite(GREEN_RELAY_PIN, LOW);
+        SetRedState(true);
+        SetGreenState(false);
       }
       break;
 
     case AUTO_GREEN_BLINK:
       if (currentTime - stateStartTime >= GREEN_BLINK_DURATION) {
-        digitalWrite(GREEN_RELAY_PIN, LOW);
+        SetGreenState(false);
         autoState = AUTO_RED;
         stateStartTime = currentTime;
         printAutoState(autoState);
@@ -162,8 +172,8 @@ void handleAutoMode() {
 
 // ========================
 void resetSignals() {
-  digitalWrite(RED_RELAY_PIN, LOW);
-  digitalWrite(GREEN_RELAY_PIN, LOW);
+  SetRedState(false);
+  SetGreenState(false);
 }
 
 // ========================
