@@ -20,10 +20,11 @@
 // Перечисления режимов
 // ========================
 enum Mode {
-  MODE_OFF = 1,
-  MODE_RED,
+  
+  MODE_RED = 1,
   MODE_GREEN,
-  MODE_AUTO
+  MODE_AUTO,
+  MODE_OFF
 };
 
 enum AutoState {
@@ -56,11 +57,11 @@ void printAutoState(AutoState state);
 // ========================
 void SetRedState(bool state)
 {
-  digitalWrite(RED_RELAY_PIN, state?HIGH:LOW);
+  digitalWrite(RED_RELAY_PIN, (!state)?HIGH:LOW);
 }
 void SetGreenState(bool state)
 {
-  digitalWrite(GREEN_RELAY_PIN, state?HIGH:LOW);
+  digitalWrite(GREEN_RELAY_PIN, (!state)?HIGH:LOW);
 }
 
 // ========================
@@ -69,8 +70,8 @@ void setup() {
   pinMode(GREEN_RELAY_PIN, OUTPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
 
-  SetRedState(true);
-  SetGreenState(true);
+  SetRedState(false);
+  SetGreenState(false);
 
   Serial.begin(9600);
   delay(200); // немного подождём запуска монитора порта
@@ -122,6 +123,8 @@ lastButtonState = reading;
 void handleMode() {
   switch (currentMode) {
     case MODE_OFF:
+      SetRedState(false);
+      SetGreenState(false);
       // Всё выключено
       break;
 
@@ -151,8 +154,8 @@ void handleAutoMode() {
         SetRedState(false);
         autoState = AUTO_GREEN_BLINK;
         stateStartTime = currentTime;
-        greenState = false;
-        SetGreenState(false);
+        greenState = true;
+        SetGreenState(true);
         printAutoState(autoState);
       } else {
         SetRedState(true);
